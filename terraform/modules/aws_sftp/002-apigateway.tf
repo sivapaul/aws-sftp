@@ -16,7 +16,9 @@ resource "aws_api_gateway_deployment" "prod" {
 #  }
 
   depends_on = [
-    aws_api_gateway_integration_response.sftp-auth-method-IntegrationResponse
+    aws_api_gateway_integration_response.sftp-auth-method-IntegrationResponse,
+    aws_api_gateway_integration.sftp-auth-integration,
+    aws_lambda_function.sftp-auth
   ]
 
 
@@ -29,29 +31,34 @@ resource "aws_api_gateway_resource" "sftp-auth-resource-config" {
   rest_api_id = aws_api_gateway_rest_api.sftp-auth.id
   parent_id   = aws_api_gateway_resource.sftp-auth-resource-username.id
   path_part   = "config"
+  depends_on = [aws_lambda_function.sftp-auth]
 }
 
 resource "aws_api_gateway_resource" "sftp-auth-resource-username" {
   rest_api_id = aws_api_gateway_rest_api.sftp-auth.id
   parent_id   = aws_api_gateway_resource.sftp-auth-resource-users.id
   path_part   = "{username}"
+  depends_on = [aws_lambda_function.sftp-auth]
 }
 
 resource "aws_api_gateway_resource" "sftp-auth-resource-users" {
   rest_api_id = aws_api_gateway_rest_api.sftp-auth.id
   parent_id   = aws_api_gateway_resource.sftp-auth-resource-serverid.id
   path_part   = "users"
+  depends_on = [aws_lambda_function.sftp-auth]
 }
 
 resource "aws_api_gateway_resource" "sftp-auth-resource-serverid" {
   rest_api_id = aws_api_gateway_rest_api.sftp-auth.id
   parent_id   = aws_api_gateway_resource.sftp-auth-resource-servers.id
   path_part   = "{serverId}"
+  depends_on = [aws_lambda_function.sftp-auth]
 }
 resource "aws_api_gateway_resource" "sftp-auth-resource-servers" {
   rest_api_id = aws_api_gateway_rest_api.sftp-auth.id
   parent_id   = aws_api_gateway_rest_api.sftp-auth.root_resource_id
   path_part   = "servers"
+  depends_on = [aws_lambda_function.sftp-auth]
 }
 
 resource "aws_api_gateway_method" "sftp-auth-method" {
@@ -62,6 +69,7 @@ resource "aws_api_gateway_method" "sftp-auth-method" {
   request_parameters = {
     "method.request.header.Password" = "false"
   }
+  depends_on = [aws_lambda_function.sftp-auth]
 }
 
 
@@ -83,6 +91,7 @@ resource "aws_api_gateway_integration" "sftp-auth-integration" {
 }
 EOF
   }
+  depends_on = [aws_lambda_function.sftp-auth]
 }
 
 resource "aws_api_gateway_method_response" "sftp-auth-response_200" {
@@ -91,12 +100,14 @@ resource "aws_api_gateway_method_response" "sftp-auth-response_200" {
   http_method = aws_api_gateway_method.sftp-auth-method.http_method
   status_code = 200
   depends_on = [
-    null_resource.method-delay
+    null_resource.method-delay,
+    aws_lambda_function.sftp-auth
   ]
 
   response_models = {
     "application/json" = aws_api_gateway_model.sftp-auth-model.name
   }
+
 }
 
 resource "aws_api_gateway_integration_response" "sftp-auth-method-IntegrationResponse" {
@@ -110,7 +121,8 @@ resource "aws_api_gateway_integration_response" "sftp-auth-method-IntegrationRes
   }
 
   depends_on = [
-    null_resource.method-delay
+    null_resource.method-delay,
+    aws_lambda_function.sftp-auth
   ]
 }
 
@@ -134,6 +146,7 @@ resource "aws_api_gateway_model" "sftp-auth-model" {
   }
 }
 EOF
+depends_on = [aws_lambda_function.sftp-auth]
 }
 
 resource "aws_lambda_permission" "allow_apigateway" {
@@ -143,7 +156,8 @@ resource "aws_lambda_permission" "allow_apigateway" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.sftp-auth.execution_arn}/*/GET/servers/*/users/*/config"
   depends_on = [
-    null_resource.method-delay
+    null_resource.method-delay,
+    aws_lambda_function.sftp-auth
   ]
 }
 

@@ -5,6 +5,7 @@ resource "aws_transfer_server" "dev-sftp" {
   identity_provider_type = "API_GATEWAY"
 #  endpoint_type          = var.endpoint_type
 
+# Enable below if you need to setup sftp for internal within VPC
 #  endpoint_details {
 #    vpc_id     = var.vpc_id
 #    subnet_ids = var.subnet_ids
