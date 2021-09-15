@@ -16,3 +16,8 @@ This project is to deploy a HA SFTP solution using cloud(AWS) services which is 
 
 ## Architecture 
 ![Architecture](https://github.com/sivapaul/aws-sftp/blob/main/arch/arch.png)
+
+## How do we manage the user in Dynamodabase
+   Created a sample Angular app to manage the users details in Dynamo database.
+   [Link to user manage app](https://github.com/sivapaul/sftp-user-app)
+   
