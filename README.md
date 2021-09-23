@@ -4,7 +4,7 @@ This project is to deploy a HA SFTP solution using cloud(AWS) services which is 
 ## Modules
 1. IoC\
    a. Terraform SFTP solution\
-   b. Terraform SFTP custom authentication\
+   b. Terraform SFTP custom authentication
 2. NodeJS app to manage SFTP users
 3. SFTP antivirus scan ***Pending***
 
